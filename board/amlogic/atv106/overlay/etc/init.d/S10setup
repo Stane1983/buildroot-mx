@@ -53,10 +53,12 @@ if [ "X$1" = "Xstart" ]; then
       USERDATA="/dev/"`ls /sys/devices/platform/mtd/$i | grep -o mtdblock[0-9]`
       break
     fi
+
   done
+  USERDATA="/dev/data"
 
   mkdir -p /tmp/userdata
-  mount -t yaffs2 $USERDATA /tmp/userdata
+  mount -t ext4 $USERDATA /tmp/userdata
   mkdir -p /tmp/userdata/xios/root
   mount -o bind /tmp/userdata/xios/root /root
   #
