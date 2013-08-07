@@ -202,11 +202,11 @@ def main():
         print "Creating symlinks..."
         script.MakeSymlinks(symlinks)
         f = open(options.outputfile, 'w')
-        f.write('assert(getprop("ro.build.product") == "%s");\n' % options.boardname)
-        f.write('assert(getprop("ro.product.device") == "%s");\n' % options.boardname)
+        f.write('assert(getprop("ro.build.product") == "%s" ||\n' % options.boardname)
+        f.write('       getprop("ro.product.device") == "%s");\n' % options.boardname)
         f.write('show_progress(0.500000, 3);\n')
         if options.wipeuserdataconditional:
-          f.write('mount("yaffs2", "MTD", "system", "/system");\n')
+          f.write('mount("ext4", "EMMC", "/dev/block/system", "/system");\n')
           f.write('ifelse\n')
           f.write('(\n')
           f.write('  is_file_exist("system/etc/issue") != "file_not_exit",\n')
@@ -217,27 +217,24 @@ def main():
           f.write('  (\n')
           f.write('    ui_print("Wiping Userdata");\n')
           f.write('    unmount("/system");\n')
-          f.write('    format("yaffs2", "MTD", "userdata", "0");\n')
+          f.write('    format("ext4", "EMMC", "/dev/block/data", "0", "/data");\n')
           f.write('  )\n')
           f.write(');\n')
         elif options.wipeuserdata:
-          f.write('format("yaffs2", "MTD", "userdata", "0");\n')
+          f.write('format("ext4", "EMMC", "/dev/block/data", "0", "/data");\n')
         f.write('assert(package_extract_file("uImage", "/tmp/boot.img"),\n')
         f.write('    write_raw_image("/tmp/boot.img", "boot"),\n')
         f.write('    delete("/tmp/boot.img"));\n')
-	f.write('show_progress(0.020000, 0);\n')
-	f.write('format("yaffs2", "MTD", "system", "0");\n')
-        f.write('mount("yaffs2", "MTD", "system", "/system");\n')
+        f.write('show_progress(0.020000, 0);\n')
+        f.write('format("ext4", "EMMC", "/dev/block/system", "0", "/system");\n')
+        f.write('mount("ext4", "EMMC", "/dev/block/system", "/system");\n')
         f.write('show_progress(0.300000, 60);\n')
         f.write('ui_print("Copying Files");\n')
         f.write('package_extract_dir("system", "/system");\n')
         f.write("\n".join(script.script) + "\n")
         f.write('assert(package_extract_file("aml_logo.img", "/tmp/aml_logo.img"),\n')
-        if options.boardname == "f16ref":
-	  f.write('       write_raw_image("/tmp/aml_logo.img", "aml_logo"),\n')
-        else:
-	  f.write('       write_raw_image("/tmp/aml_logo.img", "logo"),\n')
-	f.write('       delete("/tmp/aml_logo.img"));\n')
+        f.write('       write_raw_image("/tmp/aml_logo.img", "aml_logo"),\n')
+        f.write('       delete("/tmp/aml_logo.img"));\n')        
         f.write('show_progress(0.018000, 0);\n')
         f.write('unmount("/system");\n')
         """
@@ -245,6 +242,7 @@ def main():
 	    in their recent 4.2.2 sources. Instead of that they are using emulated storage which
 	    is part of userdata partition. Yeey, no NFTL anymore! :)
         """
+        f.write('show_progress(0.100000, 0);\n')
         if options.boardname == "xiosm3" or options.boardname == "stvmc" or options.boardname == "f16ref" or options.boardname == "stvmx":
           f.write('ifelse\n')
           f.write('(\n')
