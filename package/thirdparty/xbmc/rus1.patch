@@ -1,0 +1,343 @@
+diff --git a/language/English/strings.po b/language/English/strings.po
+index 550974c..0232ebd 100644
+--- a/language/English/strings.po
++++ b/language/English/strings.po
+@@ -6684,11 +6684,11 @@ msgstr ""
+ 
+ msgctxt "#20180"
+ msgid "Symbols"
+-msgstr ""
++msgstr "%#"
+ 
+ msgctxt "#20181"
+ msgid "Backspace"
+-msgstr ""
++msgstr "Del"
+ 
+ msgctxt "#20182"
+ msgid "Space"
+@@ -11602,6 +11602,14 @@ msgstr ""
+ #34124-34200 reserved for future use
+ #empty strings from id 34124 to 34200
+ 
++msgctxt "#909001"
++msgid "Rus"
++msgstr ""
++
++msgctxt "#909002"
++msgid "IP"
++msgstr ""
++
+ msgctxt "#34201"
+ msgid "Can't find a next item to play"
+ msgstr ""
+diff --git a/xbmc/dialogs/GUIDialogKeyboardGeneric.cpp b/xbmc/dialogs/GUIDialogKeyboardGeneric.cpp
+index ad527e4..559cc4e 100644
+--- a/xbmc/dialogs/GUIDialogKeyboardGeneric.cpp
++++ b/xbmc/dialogs/GUIDialogKeyboardGeneric.cpp
+@@ -45,6 +45,8 @@
+ #define CTL_BUTTON_LEFT       305
+ #define CTL_BUTTON_RIGHT      306
+ #define CTL_BUTTON_IP_ADDRESS 307
++#define CTL_BUTTON_RUS_LAYOUT 909001
++
+ 
+ #define CTL_LABEL_EDIT        310
+ #define CTL_LABEL_HEADING     311
+@@ -66,6 +68,7 @@
+   m_bShift = false;
+   m_hiddenInput = false;
+   m_keyType = LOWER;
++  m_keyLayout = ENG;
+   m_strHeading = "";
+   m_lastRemoteClickTime = 0;
+   m_loadType = KEEP_IN_MEMORY;
+@@ -226,6 +229,11 @@
+       case CTL_BUTTON_SHIFT:
+         OnShift();
+         break;
++  		case CTL_BUTTON_RUS_LAYOUT:
++				if(m_keyLayout == ENG) m_keyLayout = RUS;
++				else m_keyLayout = ENG;
++				UpdateButtons();
++				break;
+       case CTL_BUTTON_CAPS:
+         if (m_keyType == LOWER)
+           m_keyType = CAPS;
+@@ -396,7 +404,7 @@
+   Character(ch);
+ }
+ 
+-char CGUIDialogKeyboardGeneric::GetCharacter(int iButton)
++WCHAR CGUIDialogKeyboardGeneric::GetCharacter(int iButton)
+ {
+   // First the numbers
+   if (iButton >= 48 && iButton <= 57)
+@@ -411,24 +419,31 @@
+   }
+   else if (iButton == 32) // space
+     return (char)iButton;
+-  else if (iButton >= 65 && iButton < 91)
++  else if ((iButton >= 65 && iButton < 91) || (iButton <= 909007 && iButton >=909002 && m_keyLayout == RUS))		//todo
+   {
+-    if (m_keyType == SYMBOLS)
+-    { // symbol
+-      OnSymbols();
+-      return symbol_map[iButton - 65 + 10];
+-    }
+-    if ((m_keyType == CAPS && m_bShift) || (m_keyType == LOWER && !m_bShift))
+-    { // make lower case
+-      iButton += 32;
+-    }
+-    if (m_bShift)
+-    { // turn off the shift key
+-      OnShift();
+-    }
+-    return (char) iButton;
+-  }
+-  else
++		
++if (m_keyType == SYMBOLS)
++{ // symbol
++OnSymbols();
++return symbol_map[iButton - 65 + 10];
++}
++if ((m_keyType == CAPS && m_bShift) || (m_keyType == LOWER && !m_bShift))
++{ // make lower case
++iButton += 32;
++}
++if (m_bShift)
++{ // turn off the shift key
++OnShift();
++}
++//return 'А'; 
++return m_keyLayout == ENG ? (char) iButton : 1040 + (iButton < 123 ? iButton - 65 : iButton - 909002 + 26);
++
++  }
++  else if(iButton <= 909007 && iButton >=909002)
++	{
++			return GetAddButtonById(iButton);
++	}
++	else
+   { // check for symbols
+     for (unsigned int i = 0; i < NUM_SYMBOLS; i++)
+       if (iButton == symbolButtons[i])
+@@ -489,6 +499,12 @@
+     SetControlLabel(iButton, aLabel);
+   }
+ 
++  for (int iButton = 909002; iButton <= 909007; iButton++)
++  {
++    aLabel[0] = iButton;
++    SetControlLabel(iButton, aLabel);
++  }
++
+   // set correct alphabet characters...
+ 
+   for (int iButton = 65; iButton <= 90; iButton++)
+@@ -543,9 +564,13 @@
+ void CGUIDialogKeyboardGeneric::OnSymbols()
+ {
+   if (m_keyType == SYMBOLS)
++	{
+     m_keyType = LOWER;
++	}
+   else
++	{
+     m_keyType = SYMBOLS;
++	}
+   UpdateButtons();
+ }
+ 
+@@ -593,10 +618,151 @@
+ 
+ const char* CGUIDialogKeyboardGeneric::s_charsSeries[10] = { " 0!@#$%^&*()[]{}<>/\\|", ".,1;:\'\"-+_=?`~", "ABC2", "DEF3", "GHI4", "JKL5", "MNO6", "PQRS7", "TUV8", "WXYZ9" };
+ 
++char CGUIDialogKeyboardGeneric::GetAddButtonById(int id)
++{
++	switch(id)
++			{
++				case 909002:
++					return '/';
++				break;
++				case 909003:
++					return '.';
++				break;
++				case 909004:
++					return ',';
++				break;
++				case 909005:
++					return ':';
++				break;
++				case 909006:
++					return ';';
++				break;
++				case 909007:
++					return '_';
++				break;
++			}
++}
++
++CStdString CGUIDialogKeyboardGeneric::GetRusLabelById(int id, bool capital = false)
++{
++	CStdString tmp;
++		switch(id)
++		{
++			case 65:
++			tmp = capital?"А":"а";
++			break;
++			case 66:
++			tmp = capital?"Б":"б";
++			break;
++			case 67:
++			tmp = capital?"В":"в";
++			break;
++			case 68:
++			tmp = capital?"Г":"г";
++			break;
++			case 69:
++			tmp = capital?"Д":"д";
++			break;
++			case 70:
++			tmp = capital?"Е":"е";
++			break;
++			case 71:
++			tmp = capital?"Ж":"ж";
++			break;
++			case 72:
++			tmp = capital?"З":"з";
++			break;
++			case 73:
++			tmp = capital?"И":"и";
++			break;
++			case 74:
++			tmp = capital?"Й":"й";
++			break;
++			case 75:
++			tmp = capital?"К":"к";
++			break;
++			case 76:
++			tmp = capital?"Л":"л";
++			break;
++			case 77:
++			tmp = capital?"М":"м";
++			break;
++			case 78:
++			tmp = capital?"Н":"н";
++			break;
++			case 79:
++			tmp = capital?"О":"о";
++			break;
++			case 80:
++			tmp = capital?"П":"п";
++			break;
++			case 81:
++			tmp = capital?"Р":"р";
++			break;
++			case 82:
++			tmp = capital?"С":"с";
++			break;
++			case 83:
++			tmp = capital?"Т":"т";
++			break;
++			case 84:
++			tmp = capital?"У":"у";
++			break;
++			case 85:
++			tmp = capital?"Ф":"ф";
++			break;
++			case 86:
++			tmp = capital?"Х":"х";
++			break;
++			case 87:
++			tmp = capital?"Ц":"ц";
++			break;
++			case 88:
++			tmp = capital?"Ч":"ч";
++			break;
++			case 89:
++			tmp = capital?"Ш":"ш";
++			break;
++			case 90:
++			tmp = capital?"Щ":"щ";
++			break;
++			case 909002:
++			tmp = capital?"Ъ":"ъ";
++			break;
++			case 909003:
++			tmp = capital?"Ы":"ы";
++			break;
++			case 909004:
++			tmp = capital?"Ь":"ь";
++			break;
++			case 909005:
++			tmp = capital?"Э":"э";
++			break;
++			case 909006:
++			tmp = capital?"Ю":"ю";
++			break;
++			case 909007:
++			tmp = capital?"Я":"я";
++			break;
++		}
++	return tmp;
++}
++
+ void CGUIDialogKeyboardGeneric::SetControlLabel(int id, const CStdString &label)
+ { // find all controls with this id, and set all their labels
+   CGUIMessage message(GUI_MSG_LABEL_SET, GetID(), id);
+-  message.SetLabel(label);
++	CStdString tmp = label;
++  if (m_keyType != SYMBOLS)
++	{
++		bool capital = true;
++		if ((m_keyType == CAPS && m_bShift) || (m_keyType == LOWER && !m_bShift)) capital = false;
++		if(((id >= 65 && id <= 90) || (id >= 909002 && id <= 909007 ))&&(m_keyLayout == RUS))
++		{
++				tmp = GetRusLabelById(id, capital);
++		}
++		if((id >= 909002 && id <= 909007 ) && (m_keyLayout == ENG)) tmp = GetAddButtonById(id);
++	}
++  message.SetLabel(tmp);
+   for (unsigned int i = 0; i < m_children.size(); i++)
+   {
+     if (m_children[i]->GetID() == id || m_children[i]->IsGroup())
+diff --git a/xbmc/dialogs/GUIDialogKeyboardGeneric.h b/xbmc/dialogs/GUIDialogKeyboardGeneric.h
+index 44f485b..e6d6f45 100644
+--- a/xbmc/dialogs/GUIDialogKeyboardGeneric.h
++++ b/xbmc/dialogs/GUIDialogKeyboardGeneric.h
+@@ -27,6 +27,8 @@
+ 
+ enum KEYBOARD {CAPS, LOWER, SYMBOLS };
+ 
++enum KEYBOARD_LAYOUT {ENG, RUS };
++
+ class CGUIDialogKeyboardGeneric : public CGUIDialog, public CGUIKeyboard
+ {
+   public:
+@@ -41,6 +43,8 @@ class CGUIDialogKeyboardGeneric : public CGUIDialog, public CGUIKeyboard
+     void SetHeading(const CVariant& heading);
+     void SetText(const CStdString& aTextString);
+     CStdString GetText() const;
++    CStdString GetRusLabelById(int id, bool capital);
++    char GetAddButtonById(int id);
+     bool IsConfirmed() { return m_bIsConfirmed; };
+     void SetHiddenInput(bool hiddenInput) { m_hiddenInput = hiddenInput; };
+     void Character(WCHAR wch);
+@@ -62,7 +66,7 @@ class CGUIDialogKeyboardGeneric : public CGUIDialog, public CGUIKeyboard
+     void OnClickButton(int iButtonControl);
+     void OnRemoteNumberClick(int key);
+     void UpdateButtons();
+-    char GetCharacter(int iButton);
++    WCHAR GetCharacter(int iButton);
+     void UpdateLabel();
+     void ResetShiftAndSymbols();
+     void Backspace();
+@@ -71,6 +75,7 @@ class CGUIDialogKeyboardGeneric : public CGUIDialog, public CGUIKeyboard
+     CStdStringW m_strEdit;
+     bool m_bIsConfirmed;
+     KEYBOARD m_keyType;
++    KEYBOARD_LAYOUT m_keyLayout;
+     int m_iMode;
+     bool m_bShift;
+     bool m_hiddenInput;
