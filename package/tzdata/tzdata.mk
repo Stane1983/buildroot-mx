@@ -1,12 +1,12 @@
-#############################################################
+################################################################################
 #
 # tzdata
 #
-#############################################################
+################################################################################
 
-TZDATA_VERSION = 2012j
+TZDATA_VERSION = 2013c
 TZDATA_SOURCE = tzdata$(TZDATA_VERSION).tar.gz
-TZDATA_SITE = http://www.iana.org/time-zones/repository/releases
+TZDATA_SITE = ftp://ftp.iana.org/tz/releases
 TZDATA_DEPENDENCIES = host-zic
 TZDATA_LICENSE = Public domain
 
@@ -36,6 +36,8 @@ endef
 
 define TZDATA_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/usr/share/zoneinfo
+	cp $(@D)/iso3166.tab $(TARGET_DIR)/usr/share/zoneinfo
+	cp $(@D)/zone.tab $(TARGET_DIR)/usr/share/zoneinfo
 	cp -a $(@D)/_output/* $(TARGET_DIR)/usr/share/zoneinfo
 	cd $(TARGET_DIR)/usr/share/zoneinfo;    \
 	for zone in posix/*; do                 \
