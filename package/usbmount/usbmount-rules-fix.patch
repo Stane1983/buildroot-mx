@@ -3,9 +3,9 @@ Index: b/usbmount.rules
 --- a/usbmount.rules
 +++ b/usbmount.rules
 @@ -1,7 +1,9 @@
- # Rules for USBmount -*- conf -*-
+# Rules for USBmount -*- conf -*-
 
- KERNEL=="sd*", DRIVERS=="sbp2", 	ACTION=="add",	RUN+="/usr/share/usbmount/usbmount add"
+ KERNEL=="sd*", DRIVERS=="sbp2",		ACTION=="add",	RUN+="/usr/share/usbmount/usbmount add"
 -KERNEL=="sd*", SUBSYSTEMS=="usb",	ACTION=="add",	RUN+="/usr/share/usbmount/usbmount add"
 -KERNEL=="ub*", SUBSYSTEMS=="usb",	ACTION=="add",	RUN+="/usr/share/usbmount/usbmount add"
 +KERNEL=="sd*", SUBSYSTEM=="block",	ACTION=="add",	RUN+="/usr/share/usbmount/usbmount add"
