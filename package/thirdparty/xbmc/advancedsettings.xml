@@ -26,4 +26,17 @@
     <setting>input.remoteaskeyboard</setting>
     <setting>audiooutput.guisoundmode</setting>
   </hidesettings>
+
+  <video>
+    <subsdelayrange>60</subsdelayrange>
+    <audiodelayrange>60</audiodelayrange>
+  </video>
+
+  <!-- Fix HD playback issues -->
+  <network>
+    <!-- 104857600B = 100MB x 3 = 300MB max buffer -->
+    <cachemembuffersize>104857600</cachemembuffersize>
+    <!-- 144Mbit/s max network bandwidth -->
+    <readbufferfactor>4.0</readbufferfactor>
+  </network>
 </advancedsettings>
