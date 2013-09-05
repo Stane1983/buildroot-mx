@@ -237,16 +237,6 @@ def main():
         f.write('       delete("/tmp/aml_logo.img"));\n')
         f.write('show_progress(0.018000, 0);\n')
         f.write('unmount("/system");\n')
-<<<<<<< HEAD
-        f.write('set_bootloader_env("upgrade_step", "1");\n')
-        f.write('show_progress(0.100000, 0);\n')
-=======
-        """
-	    NFTL part won't be needed for MX boards because Amlogic is not using NFTL partition
-	    in their recent 4.2.2 sources. Instead of that they are using emulated storage which
-	    is part of userdata partition. Yeey, no NFTL anymore! :)
-        """
->>>>>>> f0515ab... [aml recovery] Added BR2_TARGET_ROOTFS_RECOVERY_AML_LOGO option for uboot logo
         if options.boardname == "xiosm3" or options.boardname == "stvmc" or options.boardname == "f16ref" or options.boardname == "stvmx":
           f.write('ifelse\n')
           f.write('(\n')
