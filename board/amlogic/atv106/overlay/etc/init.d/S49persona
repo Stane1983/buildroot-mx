@@ -31,7 +31,8 @@ if [ "X$1" = "Xstart" ]; then
       echo $SCRIPTNAME": USERDATA not found"
     else
       #Get block device of USERDATA
-      USERDATA_DISK="/dev/"`ls -l /dev/disk/by-label | grep 'USERDATA' | cut -d "/" -f 3`
+      #USERDATA_DISK="/dev/"`ls -l /dev/disk/by-label | grep 'USERDATA' | cut -d "/" -f 3`
+      USERDATA_DISK="/dev/data"
       echo $SCRIPTNAME": Checking if "$USERDATA_DISK" is mounted"
       if grep -qs $USERDATA_DISK /proc/mounts ; then
         echo $SCRIPTNAME": USERDATA found"
