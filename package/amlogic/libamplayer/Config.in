@@ -1,0 +1,8 @@
+config BR2_PACKAGE_LIBAMPLAYER
+	depends on BR2_BOARD_TYPE_AMLOGIC_M6 || BR2_BOARD_TYPE_AMLOGIC_M3 || BR2_BOARD_TYPE_AMLOGIC_M1
+        bool "Amplayer library"
+        help
+          Amlogic media player library for M6, M3 and M1.
+
+          http://openlinux.amlogic.com
+

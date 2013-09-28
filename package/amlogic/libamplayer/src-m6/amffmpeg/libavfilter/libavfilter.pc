@@ -1,0 +1,14 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libavfilter
+Description: FFmpeg video filtering library
+Version: 2.23.0
+Requires: 
+Requires.private: 
+Conflicts:
+Libs: -L${libdir} -lavfilter 
+Libs.private: -lasound -L/home/stane/xbmc-mx/output/host/usr/arm-buildroot-linux-gnueabihf/sysroot/usr/lib -lrtmp -lz -lssl -L/home/stane/xbmc-mx/output/host/usr/arm-buildroot-linux-gnueabihf/sysroot/usr//lib -lcrypto -lm -pthread -lz
+Cflags: -I${includedir}

@@ -1,0 +1,14 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libavformat
+Description: FFmpeg container format library
+Version: 53.4.0
+Requires: 
+Requires.private: libavcodec = 53.7.0
+Conflicts:
+Libs: -L${libdir} -lavformat 
+Libs.private: -lasound -L/home/stane/xbmc-mx/output/host/usr/arm-buildroot-linux-gnueabihf/sysroot/usr/lib -lrtmp -lz -lssl -L/home/stane/xbmc-mx/output/host/usr/arm-buildroot-linux-gnueabihf/sysroot/usr//lib -lcrypto -lm -pthread -lz
+Cflags: -I${includedir}

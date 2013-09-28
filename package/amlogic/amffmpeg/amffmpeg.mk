@@ -11,6 +11,8 @@ ifdef DEBUG
 AMFFMPEG_CONF_OPT+= --enable-debug --disable-stripping
 endif
 
+ifeq ($(BR2_ARM_EABIHF),y)
+
 define AMFFMPEG_CONFIGURE_CMDS
 	(cd $(AMFFMPEG_DIR) && rm -rf config.cache && \
 	$(TARGET_CONFIGURE_OPTS) \
@@ -28,6 +30,28 @@ define AMFFMPEG_CONFIGURE_CMDS
 		$(AMFFMPEG_CONF_OPT) \
   )
 endef
+
+else
+
+define AMFFMPEG_CONFIGURE_CMDS
+	(cd $(AMFFMPEG_DIR) && rm -rf config.cache && \
+	$(TARGET_CONFIGURE_OPTS) \
+	$(TARGET_CONFIGURE_ARGS) \
+	$(AMFFMPEG_CONF_ENV) \
+	./configure \
+		--enable-cross-compile  \
+		--cross-prefix=$(TARGET_CROSS) \
+		--sysroot=$(STAGING_DIR) \
+		--host-cc="$(HOSTCC)" \
+		--arch=$(BR2_ARCH) \
+		--prefix=/usr \
+		--extra-cflags="-mfloat-abi=softfp -mfpu=neon -march=armv7-a $(AMFFMPEG_EXTRA_INCLUDES)" \
+		$(AMFFMPEG_EXTRA_LDFLAGS) \
+		$(AMFFMPEG_CONF_OPT) \
+  )
+endef
+
+endif
 
 define AMFFMPEG_BUILD_CMDS
 	make -C $(AMFFMPEG_DIR)
